@@ -1,7 +1,7 @@
 {
   "name": "tg-photo-fetcher",
   "version": "1.0.0",
-  "description": "",
+  "description": "server to download any photography from any public tg channel",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -16,5 +16,14 @@
     "express": "^4.21.1",
     "node-fetch": "^3.3.2",
     "telegram": "^2.26.6"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frobe11/tg-photo-downloader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/frobe11/tg-photo-downloader/issues"
+  },
+  "homepage": "https://github.com/frobe11/tg-photo-downloader#readme"
 }
