@@ -12,7 +12,7 @@
 // const apiHash = process.env.TG_API_HASH;
 // const domain = process.env.DOMAIN;
 // const port = Number(process.env.PORT);
-// // const stringSession = new StringSession(process.env.TG_STRING_SESSION);
+// const stringSession = new StringSession(process.env.TG_STRING_SESSION);
 // const phoneNumber = String(process.env.PHONE_NUMBER);
 
 // // const rl = createInterface({
@@ -70,6 +70,7 @@ const apiId = Number(process.env.TG_API_ID);
 const apiHash = process.env.TG_API_HASH;
 const domain = process.env.DOMAIN;
 const port = Number(process.env.PORT);
+const stringSession = new StringSession(process.env.TG_STRING_SESSION);
 const phoneNumber = String(process.env.PHONE_NUMBER);
 
 const rl = createInterface({
@@ -77,29 +78,14 @@ const rl = createInterface({
   output: process.stdout,
 });
 
-const client = new TelegramClient(new StringSession(""), apiId, apiHash, {
+const client = new TelegramClient(stringSession, apiId, apiHash, {
   connectionRetries: 5,
 });
 
-// Выносим авторизацию в отдельную функцию
-async function authClient() {
-  try {
-    await client.start({
-      phoneNumber: phoneNumber,
-      password: async () => await rl.question("Password: "),
-      phoneCode: async () => await rl.question("Code: "),
-      onError: (err) => console.error("Auth error:", err),
-    });
-    console.log("Авторизация успешна!");
-  } catch (err) {
-    console.error("Ошибка авторизации:", err);
-  } finally {
-    rl.close(); // Закрываем readline только после авторизации
-  }
-}
-
-// Запускаем авторизацию перед сервером
-await authClient();
+// uncomment line under to get SessionString (and comment client.connect();)
+// await authAndSaveSession();
+// if u already had an StringSession do nothing
+client.connect();
 
 const app = express();
 app.use(cors());
@@ -133,3 +119,26 @@ app.get("/fetch-images/:channelTag", async (req, res) => {
 const server = app.listen(port, () => {
   console.log(`Сервер запущен ${domain}:${port}`);
 });
+
+async function authClient() {
+  try {
+    await client.start({
+      phoneNumber: phoneNumber,
+      password: async () => await rl.question("Password: "),
+      phoneCode: async () => await rl.question("Code: "),
+      onError: (err) => console.error("Auth error:", err),
+    });
+    console.log("Авторизация успешна!");
+  } catch (err) {
+    console.error("Ошибка авторизации:", err);
+  } finally {
+    rl.close();
+  }
+}
+
+async function authAndSaveSession() {
+  await authClient()
+  const stringSession = client.session.save();
+  console.log("Ваша сессия:", stringSession);
+}
+
