@@ -15,8 +15,10 @@ export default async function fetchImages(
   const result = [];
   const tempResult = [];
   const channel = await client.getEntity(channelTag);
-  const allMessages = await client.getMessages(channel, { limit: 10000 });
-  const messages = allMessages.filter((message) => message.photo);
+  const allMessages = await client.getMessages(channel, {
+    limit: 10000,
+    filter: new Api.InputMessagesFilterPhotos(),
+  });
   if (end > messages.length) {
     console.error(
       `end: ${end} is greater than messages length: ${messages.length}`
@@ -39,15 +41,15 @@ export default async function fetchImages(
           rating += result.count;
         });
       }
-      const filePath = `images\\${channelTag}_${i}.jpg`;
-      const fileUrl = `${domain}:${port}/images/${channelTag}_${i}.jpg`;
+      const filePath = `images\\${channelTag}_${message.id}.jpg`;
+      const fileUrl = `${domain}:${port}/images/${channelTag}_${message.id}.jpg`;
       tempResult.push({
         file: file,
         filePath: filePath,
         fileUrl: fileUrl,
         caption: caption,
         rating: rating,
-        id: i,
+        id: message.id,
       });
     }
     tempResult.sort((first, second) => sort * (second.rating - first.rating));
@@ -69,18 +71,22 @@ export default async function fetchImages(
           rating += result.count;
         });
       }
-      const filePath = `images\\${channelTag}_${i}.jpg`;
-      const fileUrl = `${domain}:${port}/images/${channelTag}_${i}.jpg`;
+      const filePath = `images\\${channelTag}_${message.id}.jpg`;
+      const fileUrl = `${domain}:${port}/images/${channelTag}_${message.id}.jpg`;
       result.push({
         file: file,
         filePath: filePath,
         fileUrl: fileUrl,
         caption: caption,
         rating: rating,
-        id: i,
+        id: message.id,
       });
-      console.log(start,end,i,result.length)
-      await downloadImage(client, result[i-start].file, result[i-start].filePath);
+      console.log(start, end, i, result.length);
+      await downloadImage(
+        client,
+        result[i - start].file,
+        result[i - start].filePath
+      );
     }
   }
   return result;

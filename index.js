@@ -95,8 +95,13 @@ app.use("/images", express.static(path.join(process.cwd(), "images")));
 
 app.get("/fetch-images/:channelTag", async (req, res) => {
   const channelTag = req.params.channelTag;
+  //first post to fetch (0 is latest)
   const start = Number(req.query.start);
+  // last post in sequence
   const end = Number(req.query.end);
+  // sort -1 : first posts with least reactions amount
+  // sort 1 : first posts with the most reactions amount
+  // sort 0 : first newer posts
   const sort = Number(req.query.sort);
 
   try {
