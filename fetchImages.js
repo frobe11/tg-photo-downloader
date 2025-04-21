@@ -17,7 +17,7 @@ export default async function fetchImages(
   const channel = await client.getEntity(channelTag);
   const allMessages = await client.getMessages(channel, {
     limit: 10000,
-    filter: new Api.InputMessagesFilterPhotos(),
+    // filter: new Api.InputMessagesFilterPhotos(),
   });
   if (end > messages.length) {
     console.error(
@@ -27,68 +27,22 @@ export default async function fetchImages(
       `end: ${end} is greater than messages length: ${messages.length}`
     );
   }
+
+  tempResult = parseMessages(start, end, message);
   if (sort) {
-    for (let i = 0; i < messages.length; i++) {
-      const message = messages[i];
-      let rating = 0;
-      const file = message.photo;
-      const caption = message.message;
-      if (!message.reactions) {
-        console.log(`No reactions for message: ${message.message}`);
-      }
-      if (message.reactions && message.reactions.results) {
-        message.reactions.results.forEach((result) => {
-          rating += result.count;
-        });
-      }
-      const filePath = `images\\${channelTag}_${message.id}.jpg`;
-      const fileUrl = `${domain}:${port}/images/${channelTag}_${message.id}.jpg`;
-      tempResult.push({
-        file: file,
-        filePath: filePath,
-        fileUrl: fileUrl,
-        caption: caption,
-        rating: rating,
-        id: message.id,
-      });
-    }
     tempResult.sort((first, second) => sort * (second.rating - first.rating));
-    for (let i = start; i < end; i++) {
-      result.push(tempResult[i]);
-      await downloadImage(client, tempResult[i].file, tempResult[i].filePath);
-    }
-  } else {
-    for (let i = start; i < end; i++) {
-      let message = messages[i];
-      let rating = 0;
-      const file = message.photo;
-      const caption = message.message;
-      if (!message.reactions) {
-        console.log(`No reactions for message: ${message.message}`);
-      }
-      if (message.reactions && message.reactions.results) {
-        message.reactions.results.forEach((result) => {
-          rating += result.count;
-        });
-      }
-      const filePath = `images\\${channelTag}_${message.id}.jpg`;
-      const fileUrl = `${domain}:${port}/images/${channelTag}_${message.id}.jpg`;
-      result.push({
-        file: file,
-        filePath: filePath,
-        fileUrl: fileUrl,
-        caption: caption,
-        rating: rating,
-        id: message.id,
-      });
-      console.log(start, end, i, result.length);
-      await downloadImage(
-        client,
-        result[i - start].file,
-        result[i - start].filePath
-      );
-    }
   }
+  for (let i = start; i < end; i++) {
+    result.push({
+      filePath: tempResult[i].filePath,
+      fileUrl: tempResult[i].fileUrl,
+      caption: tempResult[i].caption,
+      rating: tempResult[i].rating,
+      id: tempResult[i].id,
+    });
+    await downloadImage(client, tempResult[i].file, tempResult[i].filePath);
+  }
+
   return result;
 }
 
@@ -98,5 +52,32 @@ async function downloadImage(client, file, filePath) {
   } catch (error) {
     console.error(`error while downloading file: ${filePath}`, error);
     throw error;
+  }
+}
+
+async function parseMessages(start, end, messages) {
+  for (let i = start; i < end; i++) {
+    let message = messages[i];
+    let rating = 0;
+    const file = message.photo;
+    const caption = message.message;
+    if (!message.reactions) {
+      console.log(`No reactions for message: ${message.message}`);
+    }
+    if (message.reactions && message.reactions.results) {
+      message.reactions.results.forEach((result) => {
+        rating += result.count;
+      });
+    }
+    const filePath = `images\\${channelTag}_${message.id}.jpg`;
+    const fileUrl = `${domain}:${port}/images/${channelTag}_${message.id}.jpg`;
+    result.push({
+      file: file,
+      filePath: filePath,
+      fileUrl: fileUrl,
+      caption: caption,
+      rating: rating,
+      id: message.id,
+    });
   }
 }
