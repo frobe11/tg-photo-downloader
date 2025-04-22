@@ -1,4 +1,6 @@
 import { message } from "telegram/client/index.js";
+import { Api } from "../tl";
+
 
 // sort -1 : first posts with least reactions amount
 // sort 1 : first posts with the most reactions amount
