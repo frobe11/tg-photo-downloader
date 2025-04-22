@@ -87,8 +87,8 @@ function parseMessages(start, end, messages, channelTag, domain, port) {
     }
 
     const filePath = path.join("images", `${channelTag}_${message.id}.jpg`);
-    const fileUrl = `${domain}:${port}/images/${channelTag}_${message.id}.jpg`;
-
+    // const fileUrl = `${domain}:${port}/images/${channelTag}_${message.id}.jpg`; if local specify port
+    const fileUrl = `${domain}/images/${channelTag}_${message.id}.jpg`;
     result.push({
       file: file,
       filePath: filePath,
