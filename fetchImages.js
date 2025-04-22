@@ -15,9 +15,9 @@ export default async function fetchImages(
   const result = [];
   const tempResult = [];
   const channel = await client.getEntity(channelTag);
-  const allMessages = await client.getMessages(channel, {
+  const messages = await client.getMessages(channel, {
     limit: 10000,
-    // filter: new Api.InputMessagesFilterPhotos(),
+    filter: new Api.InputMessagesFilterPhotos(),
   });
   if (end > messages.length) {
     console.error(
@@ -28,7 +28,7 @@ export default async function fetchImages(
     );
   }
 
-  tempResult = parseMessages(start, end, message);
+  tempResult = parseMessages(start, end, messages);
   if (sort) {
     tempResult.sort((first, second) => sort * (second.rating - first.rating));
   }
